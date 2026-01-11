@@ -6,16 +6,20 @@ const PORT = 8001;
 // MiddleWares
 app.use(express.json());
 
+// database connection 
 const client = new Client({
     user: "postgres",
     host: "localhost",
     database: "test",
-    password: "",
+    password: "tyuxtv6c68",
     port: 5432,
 });
 
 
 client.connect().then(() => console.log("Connected to DATABASE")).catch((err) => console.log(err.message));
+
+
+// routes 
 
 app.post('/postData', (req, res) => {
     const { name, id } = req.body;
@@ -58,6 +62,35 @@ app.get('/fetchData/:id', (req, res) => {
             console.log("Data fetched successfully");
             res.send(result.rows);
 
+        }
+    })
+});
+
+app.put('/update/:id', (req, res) => {
+    const id = req.params.id;
+    const name = req.body.name;
+    const update_query = 'update demotest set name=$1 where id=$2';
+    client.query(update_query, [name, id], (err, result) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+        }
+        else {
+            console.log("Data updated successfully");
+            res.send({ msg: "Data updated successfully" });
+        }
+    })
+})
+
+app.delete('/delete/:id', (req, res) => {
+    const id = req.params.id;
+    const delete_query = 'delete from demotest where id = $1';
+    client.query(delete_query, [id], (err, result) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+        }
+        else {
+            console.log("Data deleted successfully");
+            res.send({ msg: "Data deleted successfully" });
         }
     })
 })
